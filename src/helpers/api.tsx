@@ -1,0 +1,136 @@
+import axios from "axios";
+
+export const getObsDatasetSummaryAPI = async ({
+  taxa_group_key = null,
+  taxa_keys = null,
+  max_year = 9999,
+  min_year = 0,
+  region_type = null,
+  region_fid = null,
+}: any) => {
+  const dataSummaryParamObj = {
+    baseURL: import.meta.env.VITE_APP_ATLAS_API_URL,
+    responseType: JSON,
+    headers: {
+      Authorization: `Bearer ${import.meta.env.VITE_APP_ATLAS_API_TOKEN}`,
+      "Content-Profile": "atlas_api",
+    },
+    params: {
+      taxa_group_key,
+      taxa_keys,
+      max_year,
+      min_year,
+      region_type,
+      region_fid,
+    },
+  };
+
+  const result: any = await makePostRequest(
+    "/rpc/obs_dataset_summary",
+    dataSummaryParamObj
+  );
+  return result.data || [];
+};
+
+export const getSources = async (parquet_date: string) => {
+  let result;
+  try {
+    result = await axios.get(
+      `https://object-arbutus.cloud.computecanada.ca/bq-io/atlas/parquet/atlas_datasets_${parquet_date}.json`,
+      {}
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response.data;
+    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+  return result.data || [];
+};
+
+export const getTreesCount = async (
+  minx: number,
+  maxx: number,
+  miny: number,
+  maxy: number
+) => {
+  let result;
+  const params = {
+    minx,
+    maxx,
+    miny,
+    maxy,
+  };
+  try {
+    result = await axios.get(
+      `https://geoio.biodiversite-quebec.ca/trees_mtl/count/`,
+      /*`http://localhost:7788/trees_mtl/count/`,*/
+      { params: params, withCredentials: false }
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response?.data;
+    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+  return result.data || [];
+};
+
+export const getTreesSpeciesCount = async (
+  minx: number,
+  maxx: number,
+  miny: number,
+  maxy: number
+) => {
+  let result;
+  const params = {
+    minx,
+    maxx,
+    miny,
+    maxy,
+  };
+  try {
+    result = await axios.get(
+      `https://geoio.biodiversite-quebec.ca/trees_mtl/species_count/`,
+      /*`http://localhost:7788/trees_mtl/count/`,*/
+      { params: params, withCredentials: false }
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response?.data;
+    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+  return (
+    result.data.map((s: any) => ({ essence_latin: s[0], count: s[1] })) || []
+  );
+};
+
+/**
+ * functhion used to make any custom request
+ * @param {*} url
+ * @param {*} paramObj
+ * @param obj
+ * @returns
+ */
+export const makePostRequest = async (url: string, obj: any) => {
+  const { params, baseURL, headers, signal } = obj;
+  let result;
+  try {
+    result = await axios.post(
+      baseURL + url,
+      { ...params },
+      {
+        headers,
+        signal,
+      }
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response.data;
+    const msg = `request: ${url}\n ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+
+  return result;
+};
