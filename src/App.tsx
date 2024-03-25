@@ -23,7 +23,7 @@ import {
 } from "@mui/material";
 //import AtlasHex from "./components/AtlasHex";
 import TreeMap from "./components/TreeMap";
-import TreeBar from "./components/TreeBar";
+import TreeBar2 from "./components/TreeBar2";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import theme from "./styles/theme";
 import { getSources, getAtlasExportDates } from "./helpers/api";
@@ -47,6 +47,7 @@ export default function App(props: any) {
   const [sources, setSources]: any = useState([]);
   const [atlasDates, setAtlasDates]: any = useState([]);
   const [selectedDate, setSelectedDate] = useState("2024-01-01");
+  const [treeColors, setTreeColors] = useState({});
   const [select, setSelect] = useState(<></>);
 
   const ITEM_HEIGHT = 48;
@@ -69,6 +70,7 @@ export default function App(props: any) {
           <TreeMap
             setNumTrees={setNumTrees}
             setSpeciesCount={setSpeciesCount}
+            setTreeColors={setTreeColors}
           />
         </Grid>
         <Grid
@@ -85,9 +87,9 @@ export default function App(props: any) {
             </CardContent>
           </Card>
           <Card>
-            <CardContent>
+            <CardContent sx={{ paddingTop: 0 }}>
               <Typography sx={{ fontSize: 30 }}>
-                <TreeBar data={speciesCount} />
+                <TreeBar2 data={speciesCount} treeColors={treeColors} />
               </Typography>
             </CardContent>
           </Card>

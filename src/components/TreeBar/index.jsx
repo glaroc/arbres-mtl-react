@@ -11,13 +11,14 @@ export default function TreeBar(props) {
       marginRight: 30,
       height: 600,
       x: { axis: null, label: null },
-      y: { label: null, padding: 0.5 },
+      y: { label: null, padding: 0.4 },
       marks: [
         Plot.barX(data, {
           x: "count",
           y: "essence_latin",
           //dy: 6,
           //padding: 4,
+          dx: -3,
           inset: 4.5,
           fill: "#bbbbbb",
           sort: { y: "x", reverse: true, limit: 10 },
@@ -25,7 +26,7 @@ export default function TreeBar(props) {
 
         Plot.text(data, {
           text: (d) => d.essence_latin,
-          x: 2,
+          x: 0,
           y: "essence_latin",
           textAnchor: "start",
           dy: -24,
@@ -38,7 +39,7 @@ export default function TreeBar(props) {
           x: "count",
           y: "essence_latin",
           textAnchor: "start",
-          dx: 2,
+          dx: 0,
           fill: "black",
           fontSize: 24,
         }),

@@ -80,7 +80,8 @@ export const getTreesSpeciesCount = async (
   minx: number,
   maxx: number,
   miny: number,
-  maxy: number
+  maxy: number,
+  limit: number = 10
 ) => {
   let result;
   const params = {
@@ -88,6 +89,7 @@ export const getTreesSpeciesCount = async (
     maxx,
     miny,
     maxy,
+    limit,
   };
   try {
     result = await axios.get(
@@ -102,7 +104,12 @@ export const getTreesSpeciesCount = async (
     throw new Error(msg);
   }
   return (
-    result.data.map((s: any) => ({ essence_latin: s[0], count: s[1] })) || []
+    result.data.map((s: any) => ({
+      essence_latin: s[0],
+      essence_fr: s[1],
+      essence_en: s[2],
+      count: s[3],
+    })) || []
   );
 };
 
