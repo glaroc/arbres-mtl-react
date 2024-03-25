@@ -7,9 +7,10 @@ import { Protocol } from "pmtiles";
 import { useLocation } from "react-router-dom";
 //import duckdb_init from "../../helpers/duckdb";
 import { getTreesCount, getTreesSpeciesCount } from "../../helpers/api";
+import randomcolor from "randomcolor";
 
 export default function TreeMap(props) {
-  const { setNumTrees, setSpeciesCount } = props;
+  const { setNumTrees, setSpeciesCount, setTreeColors } = props;
 
   const popupRef = useRef();
   const [showPopup, setShowPopup] = useState(true);
@@ -42,6 +43,12 @@ export default function TreeMap(props) {
     Ulmus: "cyan",
     Juglans: "brown",
   };
+
+  const cols = randomcolor({
+    count: 850,
+    seed: 1111,
+    luminosity: "bright",
+  });
 
   const arbresLayer = {
     id: "arbres",
@@ -157,12 +164,31 @@ export default function TreeMap(props) {
 
   useEffect(() => {
     let ppal = ["case"];
-    Object.keys(tree_colors).map((m) => {
+    /*Object.keys(tree_colors).map((m, i) => {
       ppal.push(["in", m, ["get", "Essence_latin"]]);
-      ppal.push(tree_colors[m]);
+      ppal.push(tree_colors[i]);
     });
-    ppal.push("orange");
-    setPal(ppal);
+    ppal.push("orange");*/
+    let tc = {};
+    getTreesSpeciesCount(-78, -70, 44, 47, 1000).then((res) => {
+      res.map((r, i) => {
+        ppal.push(["==", ["get", "Essence_fr"], r.essence_fr]);
+        ppal.push(cols[i]);
+        tc[r.essence_latin] = cols[i];
+      });
+      ppal.push("orange");
+      setTreeColors(tc);
+      setPal(ppal);
+      setSpeciesCount(
+        res.map((r, i) => {
+          if (i < 10) {
+            return r;
+          } else {
+            return false;
+          }
+        })
+      );
+    });
   }, []);
 
   return (
