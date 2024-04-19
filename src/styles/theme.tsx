@@ -1,22 +1,23 @@
 import React from "react";
 import { createTheme } from "@mui/material/styles";
 import { Box, autocompleteClasses } from "@mui/material/";
+import { outlinedInputClasses } from "@mui/material/OutlinedInput";
 
 // A custom theme for this app
 const theme = {
   palette: {
     color: "white",
     primary: {
-      main: "#f5b916",
+      main: "#fff",
       contrastText: "#bbb",
-      light: "#f5b916",
-      dark: "#bbb",
+      light: "#8cc63f",
+      dark: "#333",
     },
     secondary: {
       main: "#22e6d2",
       light: "#aaa",
       contrastText: "#bbb",
-      dark: "#bbb",
+      dark: "#333",
     },
     background: {
       paper: "white",
@@ -45,7 +46,23 @@ const theme = {
     },
   },
   sidebarWidth: 240,
-  components: {},
+  components: {
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: {
+          borderColor: "white",
+        },
+        root: {
+          [`&:hover .${outlinedInputClasses.notchedOutline}`]: {
+            border: "1px solid white",
+          },
+          [`&.Mui-focused .${outlinedInputClasses.notchedOutline}`]: {
+            border: "1px solid white",
+          },
+        },
+      },
+    },
+  },
 };
 
 /*type CustomTheme = {

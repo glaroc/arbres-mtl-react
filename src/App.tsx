@@ -26,14 +26,7 @@ import TreeMap from "./components/TreeMap";
 import TreeBar2 from "./components/TreeBar2";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import theme from "./styles/theme";
-import { getSources, getAtlasExportDates } from "./helpers/api";
-import {
-  CustomButtonCABO,
-  CustomAutocomplete,
-  CustomPaper,
-} from "./styles/customMUI";
-
-//getObsDatasetSummary({null,null,9999,0,null,region_fid})
+import SearchBar from "./components/SearchBar";
 
 export default function App(props: any) {
   const mapRef: any = useRef<MapRef>();
@@ -44,11 +37,13 @@ export default function App(props: any) {
   const [search, setSearch] = useState("");
   const [numTrees, setNumTrees]: any = useState(0);
   const [speciesCount, setSpeciesCount]: any = useState([]);
+  const [totalSpeciesCount, setTotalSpeciesCount]: any = useState([]);
   const [sources, setSources]: any = useState([]);
   const [atlasDates, setAtlasDates]: any = useState([]);
   const [selectedDate, setSelectedDate] = useState("2024-01-01");
   const [treeColors, setTreeColors] = useState({});
   const [select, setSelect] = useState(<></>);
+  const [searchBarValue, setSearchBarValue] = useState([]);
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -63,6 +58,8 @@ export default function App(props: any) {
     },
   };
 
+  const searchButtonClicked = () => {};
+
   return (
     <ThemeProvider theme={theme}>
       <Grid container>
@@ -70,29 +67,92 @@ export default function App(props: any) {
           <TreeMap
             setNumTrees={setNumTrees}
             setSpeciesCount={setSpeciesCount}
+            setTotalSpeciesCount={setTotalSpeciesCount}
+            totalSpeciesCount={totalSpeciesCount}
             setTreeColors={setTreeColors}
+            searchBarValue={searchBarValue}
           />
         </Grid>
         <Grid
           xs={3}
           item
-          sx={{ background: "#white", padding: "12px", zIndex: 99 }}
+          sx={{ background: "#333333", padding: "20px", zIndex: 99 }}
         >
-          <Card>
-            <CardContent>
-              <Typography>Number of trees on screen</Typography>
-              <Typography sx={{ fontSize: 30 }}>
-                {new Intl.NumberFormat("en-CA").format(numTrees)}
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent sx={{ paddingTop: 0 }}>
-              <Typography sx={{ fontSize: 30 }}>
-                <TreeBar2 data={speciesCount} treeColors={treeColors} />
-              </Typography>
-            </CardContent>
-          </Card>
+          <Grid container spacing={3}>
+            <Grid item xs={12}>
+              <Grid container>
+                <Grid item xs={9} sx={{ paddingLeft: "20px" }}>
+                  <Typography
+                    sx={{
+                      fontSize: "32px",
+                      fontFamily: "'Roboto Slab', serif",
+                      fontWeight: "bold",
+                      color: "white",
+                    }}
+                  >
+                    Arbres publics de Montréal
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={3}
+                  sx={{ background: "none", textAlign: "center" }}
+                >
+                  <Box
+                    sx={{
+                      background: `url("${"icon_150.png"}")`,
+                      width: "60px",
+                      height: "60px",
+                      backgroundSize: "cover",
+                      padding: "15px",
+                      backgroundColor: "white",
+                    }}
+                  ></Box>
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={8} sx={{ marginLeft: "20px" }}>
+              <Card
+                sx={{
+                  border: "1px solid #8cc63f",
+                  borderRadius: "10px",
+                  background: "none",
+                  padding: "0px",
+                  height: "90px",
+                }}
+                elevation={5}
+              >
+                <CardContent sx={{ paddingTop: "10px", paddingBottom: "0px" }}>
+                  <Typography sx={{ color: "#8cc63f" }}>
+                    Nombre d'arbres à l'écran
+                  </Typography>
+                  <Typography
+                    sx={{ fontSize: 30, color: "white", fontWeight: "bold" }}
+                  >
+                    {new Intl.NumberFormat("en-CA").format(numTrees)}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={10} sx={{ marginLeft: "20px" }}>
+              <SearchBar
+                totalSpeciesCount={totalSpeciesCount}
+                searchBarValue={searchBarValue}
+                setSearchBarValue={setSearchBarValue}
+                searchButtonClicked={searchButtonClicked}
+                treeColors={treeColors}
+              ></SearchBar>
+            </Grid>
+            <Grid item xs={12}>
+              <Card sx={{ background: "#333333" }} elevation={0}>
+                <CardContent sx={{ paddingTop: 0 }}>
+                  <Typography sx={{ fontSize: 30, color: "white" }}>
+                    <TreeBar2 data={speciesCount} treeColors={treeColors} />
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </ThemeProvider>
