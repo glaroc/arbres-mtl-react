@@ -81,7 +81,8 @@ export const getTreesSpeciesCount = async (
   maxx: number,
   miny: number,
   maxy: number,
-  limit: number = 10
+  limit: number = 10,
+  species_name: string = ""
 ) => {
   let result;
   const params = {
@@ -90,6 +91,7 @@ export const getTreesSpeciesCount = async (
     miny,
     maxy,
     limit,
+    species_name,
   };
   try {
     result = await axios.get(
@@ -111,6 +113,25 @@ export const getTreesSpeciesCount = async (
       count: s[3],
     })) || []
   );
+};
+
+export const getTreesGeoJSON = async (species_name: string) => {
+  let result;
+  const params = {
+    species_name: species_name,
+  };
+  try {
+    result = await axios.get(
+      `https://geoio.biodiversite-quebec.ca/trees_mtl/species_geojson/`,
+      { params: params, withCredentials: false }
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response?.data;
+    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+  return result.data || [];
 };
 
 /**
