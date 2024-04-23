@@ -48,13 +48,9 @@ export default function SearchBar(props: any) {
       );
       names = names
         .sort((a: any, b: any) => {
-          if (a.essence_fr < b.essence_fr) {
-            return -1;
-          }
-          if (a.essence_fr > b.essence_fr) {
-            return 1;
-          }
-          return 0;
+          return a.essence_fr
+            .toLowerCase()
+            .localeCompare(b.essence_fr.toLowerCase(), "fr");
         })
         .map((r: any) => ({
           label: r.essence_fr,

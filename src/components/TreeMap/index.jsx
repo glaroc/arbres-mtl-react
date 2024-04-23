@@ -35,6 +35,7 @@ const TreeMap = memo(function TreeMap(props) {
   const [conn, setConn] = useState("");
   const [geojson, setGeojson] = useState({});
   const [whichMap, setWhichMap] = useState("pmtiles");
+  const [mapBounds, setMapBounds] = useState([]);
 
   const [mapLoaded, setMapLoaded] = useState(false);
   const [lastCount, setLastCount] = useState(Date.now());
@@ -50,6 +51,7 @@ const TreeMap = memo(function TreeMap(props) {
 
   useEffect(() => {
     let ignore = false;
+    setWhichMap("");
     if (searchBarValue.length > 0) {
       let s = searchBarValue.map((v) => v.id);
       const thisSp = totalSpeciesCount.filter((c) =>
@@ -65,11 +67,9 @@ const TreeMap = memo(function TreeMap(props) {
         });
         ppal.push(0);
         setOpacity(ppal);
-        updateBarPMTiles();
       } else {
         setWhichMap("geojson");
         const sj = s.join(",");
-        updateBarGEOJSON();
         getTreesGeoJSON(sj).then((g) => {
           if (!ignore) {
             if (g.features?.length > 0) {
@@ -141,70 +141,74 @@ const TreeMap = memo(function TreeMap(props) {
   };
 
   const removeListeners = () => {
-    mapRef.current.off("movestart", "arbres-geojson", () => {});
-    mapRef.current.off("moveend", "arbres-geojson", () => {
-      updateBarGEOJSON();
-    });
+    if (mapRef.current) {
+      mapRef.current.off("movestart", () => {});
+      mapRef.current.off("moveend", () => {
+        setMapBounds(mapRef.current.getBounds().toArray());
+      });
+      mapRef.current.off("movestart", "arbres-geojson", () => {});
+      mapRef.current.off("moveend", "arbres-geojson", () => {
+        setMapBounds(mapRef.current.getBounds().toArray());
+      });
+    }
   };
 
-  const updateBarPMTiles = () => {
-    if (Date.now() - lastCount > 100) {
-      const bounds = mapRef.current.getBounds().toArray();
-      getTreesCount(
-        bounds[0][0],
-        bounds[1][0],
-        bounds[0][1],
-        bounds[1][1]
-      ).then((conn) => {
-        setNumTrees(conn[0][0]);
+  useEffect(() => {
+    if (mapBounds.length > 0) {
+      if (whichMap === "pmtiles") {
+        let sj = searchBarValue.map((v) => v.id).join(",");
+        if (sj == "") {
+          sj = null;
+        }
+        getTreesCount(
+          mapBounds[0][0],
+          mapBounds[1][0],
+          mapBounds[0][1],
+          mapBounds[1][1]
+        ).then((conn) => {
+          setNumTrees(conn[0][0]);
+          getTreesSpeciesCount(
+            mapBounds[0][0],
+            mapBounds[1][0],
+            mapBounds[0][1],
+            mapBounds[1][1],
+            1000,
+            sj
+          ).then((res) => {
+            setSpeciesCount(res);
+            setLastCount(Date.now());
+          });
+        });
+      } else {
+        let sj = searchBarValue.map((v) => v.id).join(",");
+        const bounds = mapRef.current.getBounds().toArray();
         getTreesSpeciesCount(
-          bounds[0][0],
-          bounds[1][0],
-          bounds[0][1],
-          bounds[1][1],
-          1000
+          mapBounds[0][0],
+          mapBounds[1][0],
+          mapBounds[0][1],
+          mapBounds[1][1],
+          1000,
+          sj
         ).then((res) => {
           setSpeciesCount(res);
+          let tc = 0;
+          res.forEach((m) => (tc = tc + m.count));
+          setNumTrees(tc);
           setLastCount(Date.now());
         });
-      });
+      }
     }
-  };
+  }, [mapBounds, searchBarValue]);
 
-  const updateBarGEOJSON = () => {
-    if (Date.now() - lastCount > 1000) {
-      let sj = searchBarValue.map((v) => v.id).join(",");
-      const bounds = mapRef.current.getBounds().toArray();
-      getTreesSpeciesCount(
-        bounds[0][0],
-        bounds[1][0],
-        bounds[0][1],
-        bounds[1][1],
-        1000,
-        sj
-      ).then((res) => {
-        setSpeciesCount(res);
-        let tc = 0;
-        res.forEach((m) => (tc = tc + m.count));
-        setNumTrees(tc);
-        setLastCount(Date.now());
-      });
-    }
-  };
   const PMTilesTrees = () => {
     useEffect(() => {
       let ignore = false;
       if (mapRef.current && !mapLoaded) {
         setMapLoaded(true);
-        //removeListeners();
         mapRef.current.on("load", "arbres", () => {
           mapRef.current.on("movestart", () => {});
           mapRef.current.on("moveend", () => {
-            if (whichMap === "geojson") {
-              updateBarGEOJSON();
-            } else {
-              updateBarPMTiles();
-            }
+            setMapBounds(mapRef.current.getBounds().toArray());
           });
 
           mapRef.current.on("mouseenter", "arbres", () => {
@@ -243,7 +247,10 @@ const TreeMap = memo(function TreeMap(props) {
           });
         });
       }
-      //return () => (ignore = true);
+      return () => {
+        ignore = true;
+        removeListeners();
+      };
     }, [mapRef.current]);
 
     return (
@@ -260,11 +267,10 @@ const TreeMap = memo(function TreeMap(props) {
   const GeoJSONTrees = () => {
     let ignore = false;
     if (mapRef.current) {
-      /*removeListeners();
       mapRef.current.on("movestart", "arbres-geojson", () => {});
       mapRef.current.on("moveend", "arbres-geojson", () => {
-        updateBarGEOJSON();
-      });*/
+        setMapBounds(mapRef.current.getBounds().toArray());
+      });
       useEffect(() => {
         setMapLoaded(true);
         mapRef.current.on("load", "arbres-geojson", function (e) {
@@ -303,9 +309,12 @@ const TreeMap = memo(function TreeMap(props) {
             }
           });
         });
-      }, []);
+        return () => {
+          ignore = true;
+          removeListeners();
+        };
+      }, [mapRef.current]);
     }
-    //return () => (ignore = true);
 
     return (
       <Source id="arbres-geojson" type="geojson" data={geojson}>
