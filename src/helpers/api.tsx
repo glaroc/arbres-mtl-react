@@ -101,9 +101,13 @@ export const getTreesSpeciesCount = async (
     );
   } catch (error) {
     const { message, response } = error as any;
-    const { details, message: respMessage } = response?.data;
-    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
-    throw new Error(msg);
+    if (response) {
+      const { details, message: respMessage } = response?.data;
+      const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+      throw new Error(msg);
+    } else {
+      throw new Error("Error getting tree species count");
+    }
   }
   return (
     result.data.map((s: any) => ({
