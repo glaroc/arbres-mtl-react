@@ -24,16 +24,21 @@ const TreeMap = memo(function TreeMap(props) {
     searchBarValue,
   } = props;
 
+  const defaultCircleRadius = [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    5,
+    0.1,
+    18,
+    6,
+  ];
   const popupRef = useRef();
   const [showPopup, setShowPopup] = useState(true);
-  const [clickCoor, setClickCoor] = useState([0, 0]);
   const [popup, setPopup] = useState(<></>);
-  const [search, setSearch] = useState("");
-  const [map, setMap] = useState(<></>);
   const [opacity, setOpacity] = useState(1);
+  const [circleRadius, setCircleRadius] = useState(defaultCircleRadius);
   const [pal, setPal] = useState("orange");
-  const [conn, setConn] = useState("");
-  const [geojson, setGeojson] = useState({});
   const [whichMap, setWhichMap] = useState("pmtiles");
   const [mapBounds, setMapBounds] = useState([]);
 
@@ -57,41 +62,19 @@ const TreeMap = memo(function TreeMap(props) {
       const thisSp = totalSpeciesCount.filter((c) =>
         s.includes(c.essence_latin)
       );
-      if (thisSp[0].count > 1000) {
-        setWhichMap("pmtiles");
-        setGeojson({});
-        let ppal = ["case"];
-        s.map((r, i) => {
-          ppal.push(["==", ["get", "Essence_latin"], r]);
-          ppal.push(1);
-        });
-        ppal.push(0);
-        setOpacity(ppal);
-      } else {
-        setWhichMap("geojson");
-        const sj = s.join(",");
-        getTreesGeoJSON(sj).then((g) => {
-          if (!ignore) {
-            if (g.features?.length > 0) {
-              let tc = {};
-              setGeojson(g);
-              let ppal = ["case"];
-              s.map((r, i) => {
-                ppal.push(["==", ["get", "Essence_latin"], r]);
-                ppal.push(cols[i]);
-                tc[r.essence_latin] = cols[i];
-              });
-              setTreeColors(tc);
-            }
-          }
-        });
-      }
+      let ppal = ["case"];
+      s.map((r, i) => {
+        ppal.push(["in", r, ["get", "Essence_latin"]]);
+        ppal.push(1);
+      });
+      ppal.push(0);
+      setOpacity(ppal);
+      setCircleRadius(["interpolate", ["linear"], ["zoom"], 5, 2, 18, 6]);
     } else {
-      setWhichMap("pmtiles");
-      initBars();
-      setGeojson({});
+      //initBars();
       setOpacity(1);
     }
+    setWhichMap("pmtiles");
     return () => (ignore = true);
   }, [searchBarValue]);
 
@@ -120,95 +103,55 @@ const TreeMap = memo(function TreeMap(props) {
     type: "circle",
     paint: {
       "circle-color": pal,
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 0.1, 18, 6],
+      "circle-radius": circleRadius,
       "circle-opacity": opacity,
       "circle-stroke-opacity": opacity,
-      "circle-stroke-width": 2,
+      "circle-stroke-width": 1,
       "circle-stroke-color": "#333333",
     },
   };
-  const geoJSONArbresLayer = {
-    id: "arbres-geojson",
-    source: "arbres-geojson",
-    type: "circle",
-    paint: {
-      "circle-color": pal,
-      "circle-radius": ["interpolate", ["linear"], ["zoom"], 5, 3, 18, 6],
-      "circle-opacity": 1,
-      "circle-stroke-width": 2,
-      "circle-stroke-color": "#333333",
-    },
-  };
-
   const removeListeners = () => {
     if (mapRef.current) {
-      mapRef.current.off("movestart", () => {});
-      mapRef.current.off("moveend", () => {
-        setMapBounds(mapRef.current.getBounds().toArray());
-      });
-      mapRef.current.off("movestart", "arbres-geojson", () => {});
-      mapRef.current.off("moveend", "arbres-geojson", () => {
-        setMapBounds(mapRef.current.getBounds().toArray());
-      });
     }
   };
 
-  useEffect(() => {
-    if (mapBounds.length > 0) {
-      if (whichMap === "pmtiles") {
-        let sj = searchBarValue.map((v) => v.id).join(",");
-        if (sj == "") {
-          sj = null;
-        }
-        getTreesCount(
-          mapBounds[0][0],
-          mapBounds[1][0],
-          mapBounds[0][1],
-          mapBounds[1][1]
-        ).then((conn) => {
-          setNumTrees(conn[0][0]);
-          getTreesSpeciesCount(
-            mapBounds[0][0],
-            mapBounds[1][0],
-            mapBounds[0][1],
-            mapBounds[1][1],
-            1000,
-            sj
-          ).then((res) => {
-            setSpeciesCount(res);
-            setLastCount(Date.now());
-          });
-        });
-      } else {
-        let sj = searchBarValue.map((v) => v.id).join(",");
-        const bounds = mapRef.current.getBounds().toArray();
-        getTreesSpeciesCount(
-          mapBounds[0][0],
-          mapBounds[1][0],
-          mapBounds[0][1],
-          mapBounds[1][1],
-          1000,
-          sj
-        ).then((res) => {
-          setSpeciesCount(res);
-          let tc = 0;
-          res.forEach((m) => (tc = tc + m.count));
-          setNumTrees(tc);
-          setLastCount(Date.now());
-        });
-      }
-    }
-  }, [mapBounds, searchBarValue]);
+  const PMTilesTrees = (props) => {
+    const { searchBarValue, setNumTrees } = props;
+    const [features, setFeatures] = useState([]);
 
-  const PMTilesTrees = () => {
+    const updateBounds = (sb) => {};
+
+    useEffect(() => {
+      let cnt = 0;
+      if (features.length > 0) {
+        if (searchBarValue.length > 0) {
+          let s = searchBarValue.map((v) => v.id);
+          features.map((f) => {
+            cnt =
+              cnt +
+              f.properties.Essence_latin.split(",").reduce(function (a, e, i) {
+                if (s.includes(e)) a.push(i);
+                return a;
+              }, []).length;
+          });
+        } else {
+          features.map((f) => {
+            cnt = cnt + f.properties.Essence_latin.split(",").length;
+          });
+        }
+      }
+      setNumTrees(cnt);
+    }, [features]);
+
     useEffect(() => {
       let ignore = false;
-      if (mapRef.current && !mapLoaded) {
+      if (mapRef.current) {
         setMapLoaded(true);
+        setFeatures(mapRef.current.queryRenderedFeatures());
         mapRef.current.on("load", "arbres", () => {
           mapRef.current.on("movestart", () => {});
           mapRef.current.on("moveend", () => {
-            setMapBounds(mapRef.current.getBounds().toArray());
+            setFeatures(mapRef.current.queryRenderedFeatures());
           });
 
           mapRef.current.on("mouseenter", "arbres", () => {
@@ -249,76 +192,23 @@ const TreeMap = memo(function TreeMap(props) {
       }
       return () => {
         ignore = true;
-        removeListeners();
+        if (mapRef.current) {
+          mapRef.current.on("movestart", () => {});
+          mapRef.current.on("moveend", () => {
+            setFeatures(mapRef.current.queryRenderedFeatures());
+          });
+          setFeatures(mapRef.current.queryRenderedFeatures());
+        }
       };
-    }, [mapRef.current]);
+    }, [mapRef.current, searchBarValue]);
 
     return (
       <Source
         id="arbres"
         type="vector"
-        url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/bq-io/arbres-test/arbres-test.pmtiles`}
+        url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_mtl.pmtiles`}
       >
         <Layer {...arbresLayer} />
-      </Source>
-    );
-  };
-
-  const GeoJSONTrees = () => {
-    let ignore = false;
-    if (mapRef.current) {
-      mapRef.current.on("movestart", "arbres-geojson", () => {});
-      mapRef.current.on("moveend", "arbres-geojson", () => {
-        setMapBounds(mapRef.current.getBounds().toArray());
-      });
-      useEffect(() => {
-        setMapLoaded(true);
-        mapRef.current.on("load", "arbres-geojson", function (e) {
-          mapRef.current.on("mouseenter", "arbres-geojson", () => {
-            if (mapRef.current.getZoom() > 14) {
-              mapRef.current.getCanvas().style.cursor = "pointer";
-            }
-          });
-          mapRef.current.on("mouseleave", "arbres-geojson", () => {
-            mapRef.current.getCanvas().style.cursor = "";
-          });
-
-          mapRef.current.on("click", "arbres-geojson", (e) => {
-            if (mapRef.current.getZoom() > 14) {
-              const features = mapRef.current?.queryRenderedFeatures(e.point);
-              const popupText = features.map(
-                (f) => `<strong>Espèce</strong>: ${f.properties.Essence_fr}`
-              );
-
-              setShowPopup(true);
-              setPopup(
-                <Popup
-                  latitude={e.lngLat.lat}
-                  longitude={e.lngLat.lng}
-                  closeOnClick={true}
-                  onClose={() => setShowPopup(false)}
-                  closeButton={false}
-                >
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: popupText.join("<hr>"),
-                    }}
-                  ></div>
-                </Popup>
-              );
-            }
-          });
-        });
-        return () => {
-          ignore = true;
-          removeListeners();
-        };
-      }, [mapRef.current]);
-    }
-
-    return (
-      <Source id="arbres-geojson" type="geojson" data={geojson}>
-        <Layer {...geoJSONArbresLayer} />
       </Source>
     );
   };
@@ -340,24 +230,19 @@ const TreeMap = memo(function TreeMap(props) {
         bounds[1][1],
         1000
       ).then((res) => {
+        let totc = 0;
         res.map((r, i) => {
           ppal.push(["==", ["get", "Essence_fr"], r.essence_fr]);
           ppal.push(cols[i]);
           tc[r.essence_latin] = cols[i];
+          totc = totc + r.count;
         });
+        //setNumTrees(totc);
         ppal.push("orange");
         setTreeColors(tc);
         setPal(ppal);
         setSpeciesCount(res);
         setTotalSpeciesCount([...res]);
-        getTreesCount(
-          bounds[0][0],
-          bounds[1][0],
-          bounds[0][1],
-          bounds[1][1]
-        ).then((conn) => {
-          setNumTrees(conn[0][0]);
-        });
       });
     }
   };
@@ -397,8 +282,12 @@ const TreeMap = memo(function TreeMap(props) {
         }}
         mapLib={maplibregl}
       >
-        {whichMap === "pmtiles" && <PMTilesTrees />}
-        {whichMap === "geojson" && <GeoJSONTrees />}
+        {whichMap === "pmtiles" && (
+          <PMTilesTrees
+            searchBarValue={searchBarValue}
+            setNumTrees={setNumTrees}
+          />
+        )}
         {showPopup && <> {popup} </>}
       </Map>
     </div>
