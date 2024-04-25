@@ -115,7 +115,7 @@ const TreeMap = memo(function TreeMap(props) {
     }
   };
 
-  const PMTilesTrees = (props) => {
+  const PMTilesTrees = memo(function PMTilesTrees(props) {
     const { searchBarValue, setNumTrees } = props;
     const [features, setFeatures] = useState([]);
 
@@ -211,7 +211,7 @@ const TreeMap = memo(function TreeMap(props) {
         <Layer {...arbresLayer} />
       </Source>
     );
-  };
+  });
 
   const initBars = () => {
     if (mapRef.current) {
