@@ -30,35 +30,9 @@ export default function SearchBar(props: any) {
     searchBarValue,
     setSearchBarValue,
     searchButtonClicked,
-    totalSpeciesCount,
     treeColors,
+    options,
   } = props;
-  const [options, setOptions] = useState([]);
-
-  useEffect(() => {
-    if (totalSpeciesCount) {
-      let names = totalSpeciesCount.filter(
-        (value: any, index: number, self: any) =>
-          index ===
-          self.findIndex(
-            (t: any) =>
-              t.essence_fr === value.essence_fr &&
-              t.essence_fr === value.essence_fr
-          )
-      );
-      names = names
-        .sort((a: any, b: any) => {
-          return a.essence_fr
-            .toLowerCase()
-            .localeCompare(b.essence_fr.toLowerCase(), "fr");
-        })
-        .map((r: any) => ({
-          label: r.essence_fr,
-          id: r.essence_latin,
-        }));
-      setOptions(names);
-    }
-  }, [totalSpeciesCount]);
 
   return (
     <ButtonGroup>

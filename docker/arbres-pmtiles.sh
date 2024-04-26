@@ -18,13 +18,16 @@ echo -e "== Sending files to cloud =="
 docker compose run --rm  spatial s5cmd cp -acl 'public-read' /tmp/arbres_publics_mtl.parquet s3://arbres/mtl/parquet/
 
 echo -e "== Generating PMTiles file =="
-docker compose run --rm spatial tippecanoe --cluster-distance=3 -B 16 -rg -zg -pk -x Coord_X -x Coord_Y -x CODE_PARC -x NOM_PARC -x ARROND_NOM -x SIGLE -x EMP_NO -x Rue -x LOCALISATION -x Emplacement -x No_civique -x COTE -x LONGITUDE -x LATITUDE -x INV_TYPE -o /tmp/arbres_mtl.pmtiles --accumulate-attribute=Essence_latin:comma --extend-zooms-if-still-dropping --drop-densest-as-needed -l arbres --force /tmp/arbres_publics_mtl.geojson
+docker compose run --rm spatial tippecanoe --cluster-distance=2 -B 16 -rg -zg -pk -x Coord_X -x Coord_Y -x CODE_PARC -x NOM_PARC -x ARROND_NOM -x EMP_NO -x Rue -x LOCALISATION -x Emplacement -x No_civique -x COTE -x LONGITUDE -x LATITUDE -x INV_TYPE -o /tmp/arbres_mtl.pmtiles --accumulate-attribute=SIGLE:comma --extend-zooms-if-still-dropping --drop-densest-as-needed -l arbres --force /tmp/arbres_publics_mtl.geojson
 
 echo -e "== Sending files to cloud =="
 docker compose run --rm  spatial s5cmd cp -acl 'public-read' /tmp/arbres_mtl.pmtiles s3://arbres/mtl/pmtiles/
 
-#echo -e "== Generate Datasets and number of observations table =="
-#docker compose run --rm spatial /app/duckdb :memory: "COPY (SELECT dataset_name, count(*) as n_obs FROM read_parquet('/tmp/atlas_public_${date}.parquet') GROUP BY dataset_name) TO '/tmp/atlas_datasets_public_${date}.json' (ARRAY true);"
+echo -e "== Generate Species and number of observations table =="
+docker compose run --rm spatial /app/duckdb :memory: "COPY (SELECT SIGLE as sigle,  string_agg(DISTINCT Essence_latin) as essence_latin, string_agg(DISTINCT Essence_Fr,',') as essence_fr, string_agg(DISTINCT ESSENCE_ANG,',') as essence_en, count(*) as n_trees FROM read_parquet('/tmp/arbres_publics_mtl.parquet') GROUP BY sigle ORDER BY n_trees DESC) TO '/tmp/arbres_publics_mtl_freq.json' (ARRAY true);"
+
+echo -e "== Sending files to cloud =="
+docker compose run --rm  spatial s5cmd cp -acl 'public-read' /tmp/arbres_publics_mtl_freq.json s3://arbres/mtl/pmtiles/
 
 #echo -e "== Sending file to cloud =="
 #docker compose run --rm  spatial s5cmd cp -acl public-read /tmp/atlas_datasets_${date}.json s3://bq-io/atlas/parquet/

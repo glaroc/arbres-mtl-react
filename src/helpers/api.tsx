@@ -138,6 +138,22 @@ export const getTreesGeoJSON = async (species_name: string) => {
   return result.data || [];
 };
 
+export const getTreesNamesCount = async () => {
+  let result;
+  try {
+    result = await axios.get(
+      `https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_publics_mtl_freq.json`,
+      {}
+    );
+  } catch (error) {
+    const { message, response } = error as any;
+    const { details, message: respMessage } = response?.data;
+    const msg = `request: ${message} \n ${details} \n ${respMessage}`;
+    throw new Error(msg);
+  }
+  return result.data || [];
+};
+
 /**
  * functhion used to make any custom request
  * @param {*} url
