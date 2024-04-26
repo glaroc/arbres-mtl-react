@@ -112,10 +112,9 @@ const TreeMap = (props) => {
           ppal.push(["in", r, ["get", "SIGLE"]]);
         });
         setFilter(ppal);
-        mapRef.current.setFilter("arbres", ppal);
+        setCircleRadius(["interpolate", ["linear"], ["zoom"], 5, 2, 18, 6]);
+        setPal("orange");
       }
-      setCircleRadius(["interpolate", ["linear"], ["zoom"], 5, 2, 18, 6]);
-      setPal("orange");
     } else {
       setFilter(["all"]);
     }
@@ -148,7 +147,7 @@ const TreeMap = (props) => {
       cnt = Object.values(sp).reduce((a, b) => a + b, 0);
       setNumTrees(cnt);
     }
-  }, [features]);
+  }, [features, filter]);
 
   const PMTilesTrees = () => {
     useEffect(() => {
@@ -207,7 +206,7 @@ const TreeMap = (props) => {
           });
         }
       };
-    }, [mapRef.current]);
+    }, [mapRef.current, searchBarValue]);
 
     return (
       <Source
