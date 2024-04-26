@@ -27,6 +27,7 @@ import TreeBar2 from "./components/TreeBar2";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
 import theme from "./styles/theme";
 import SearchBar from "./components/SearchBar";
+import { getTreesNamesCount } from "./helpers/api";
 
 export default function App(props: any) {
   const mapRef: any = useRef<MapRef>();
@@ -39,11 +40,12 @@ export default function App(props: any) {
   const [speciesCount, setSpeciesCount]: any = useState([]);
   const [totalSpeciesCount, setTotalSpeciesCount]: any = useState([]);
   const [sources, setSources]: any = useState([]);
-  const [atlasDates, setAtlasDates]: any = useState([]);
+  const [species, setSpecies]: any = useState([]);
   const [selectedDate, setSelectedDate] = useState("2024-01-01");
   const [treeColors, setTreeColors] = useState({});
   const [select, setSelect] = useState(<></>);
   const [searchBarValue, setSearchBarValue] = useState([]);
+  const [options, setOptions] = useState([]);
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -60,6 +62,29 @@ export default function App(props: any) {
 
   const searchButtonClicked = () => {};
 
+  useEffect(() => {
+    let ignore = false;
+    getTreesNamesCount().then((res) => {
+      if (!ignore) {
+        let names = res
+          .sort((a: any, b: any) => {
+            return a.essence_fr
+              .toLowerCase()
+              .localeCompare(b.essence_fr.toLowerCase(), "fr");
+          })
+          .map((r: any) => ({
+            label: r.essence_fr,
+            id: r.sigle,
+          }));
+        setSpecies(res);
+        setOptions(names);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       <Grid container>
@@ -68,7 +93,7 @@ export default function App(props: any) {
             setNumTrees={setNumTrees}
             setSpeciesCount={setSpeciesCount}
             setTotalSpeciesCount={setTotalSpeciesCount}
-            totalSpeciesCount={totalSpeciesCount}
+            species={species}
             setTreeColors={setTreeColors}
             searchBarValue={searchBarValue}
           />
@@ -136,7 +161,7 @@ export default function App(props: any) {
             </Grid>
             <Grid item xs={10} sx={{ marginLeft: "20px" }}>
               <SearchBar
-                totalSpeciesCount={totalSpeciesCount}
+                options={options}
                 searchBarValue={searchBarValue}
                 setSearchBarValue={setSearchBarValue}
                 searchButtonClicked={searchButtonClicked}
