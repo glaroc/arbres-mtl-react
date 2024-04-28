@@ -60,46 +60,42 @@ export default function App(props: any) {
     },
   };
 
-  const searchButtonClicked = () => {};
-
   useEffect(() => {
-    let ignore = false;
     getTreesNamesCount().then((res) => {
-      if (!ignore) {
-        let names = res
-          .sort((a: any, b: any) => {
-            return a.essence_fr
-              .toLowerCase()
-              .localeCompare(b.essence_fr.toLowerCase(), "fr");
-          })
-          .map((r: any) => ({
-            label: r.essence_fr,
-            id: r.sigle,
-          }));
-        setSpecies(res);
-        setOptions(names);
-      }
+      let names = res
+        .sort((a: any, b: any) =>
+          a.essence_fr
+            .toLowerCase()
+            .localeCompare(b.essence_fr.toLowerCase(), "fr")
+        )
+        .map((r: any) => ({
+          label: r.essence_fr,
+          id: r.sigle,
+        }));
+      setSpecies(res);
+      setOptions(names);
     });
-    return () => {
-      ignore = true;
-    };
   }, []);
 
   return (
     <ThemeProvider theme={theme}>
       <Grid container>
-        <Grid xs={9} item>
+        <Grid xs={6} md={7} lg={9} item>
           <TreeMap
             setNumTrees={setNumTrees}
             setSpeciesCount={setSpeciesCount}
+            speciesCount={speciesCount}
             setTotalSpeciesCount={setTotalSpeciesCount}
             species={species}
+            treeColors={treeColors}
             setTreeColors={setTreeColors}
             searchBarValue={searchBarValue}
           />
         </Grid>
         <Grid
-          xs={3}
+          xs={6}
+          md={5}
+          lg={3}
           item
           sx={{ background: "#333333", padding: "20px", zIndex: 99 }}
         >
@@ -148,7 +144,7 @@ export default function App(props: any) {
                 elevation={5}
               >
                 <CardContent sx={{ paddingTop: "10px", paddingBottom: "0px" }}>
-                  <Typography sx={{ color: "#8cc63f" }}>
+                  <Typography sx={{ color: "#8cc63f", fontSize: 12 }}>
                     Nombre d'arbres à l'écran
                   </Typography>
                   <Typography
@@ -164,7 +160,6 @@ export default function App(props: any) {
                 options={options}
                 searchBarValue={searchBarValue}
                 setSearchBarValue={setSearchBarValue}
-                searchButtonClicked={searchButtonClicked}
                 treeColors={treeColors}
               ></SearchBar>
             </Grid>

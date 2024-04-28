@@ -65,7 +65,7 @@ export default function TreeBar2(props: any) {
               <Grid item xs={11 - (10 * d.count) / w} sx={{ height: "15px" }}>
                 <Box
                   sx={{
-                    background: treeColors[d.sigle],
+                    background: treeColors[d.essence_fr],
                     marginLeft: "8px",
                     borderRadius: "10px",
                     height: "15px",
