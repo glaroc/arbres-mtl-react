@@ -1,21 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  TextField,
-  Autocomplete,
-  FilledInput,
-  Tabs,
-  Tab,
-  Select,
-  MenuItem,
-  FormControl,
-  Button,
-  ButtonGroup,
-  Chip,
-  Avatar,
-  Typography,
-  Container,
-  Modal,
-} from "@mui/material";
+import { TextField, ButtonGroup, Chip, Grid } from "@mui/material";
 import {
   CustomButton,
   CustomAutocomplete,
@@ -42,7 +26,12 @@ export default function SearchBar(props: any) {
         size="small"
         options={options}
         getOptionLabel={(option: any) => option.label}
-        sx={{ width: "275px" }}
+        sx={{
+          width: { xs: "150px", md: "200px", lg: "250px" },
+          "& .MuiSvgIcon-root": {
+            color: "#aaa",
+          },
+        }}
         value={searchBarValue}
         PaperComponent={CustomPaper}
         onChange={(e, value) => setSearchBarValue(value)}
@@ -54,18 +43,10 @@ export default function SearchBar(props: any) {
               size="small"
               sx={{
                 color: "white",
+                "& .MuiSvgIcon-root": {
+                  color: "white",
+                },
               }}
-              /*avatar={
-                <Avatar
-                  sx={{
-                    backgroundColor: "white",
-                    padding: "0px 4px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {spFreq[option.label] ? spFreq[option.label] : 0}
-                </Avatar>
-              }*/
               {...getTagProps({ index })}
             />
           ))
