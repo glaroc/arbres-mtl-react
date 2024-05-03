@@ -18,6 +18,8 @@ const TreeMap = (props) => {
     treeColors,
     searchBarValue,
     species,
+    lang,
+    t,
   } = props;
   const popupRef = useRef();
   const [showPopup, setShowPopup] = useState(true);
@@ -90,9 +92,9 @@ const TreeMap = (props) => {
       let tc = {};
       let ppal = ["case"];
       species.map((r, i) => {
-        ppal.push(["==", ["get", "Essence_fr"], r.essence_fr]);
+        ppal.push(["==", ["get", `essence_${lang}`], r[`essence_${lang}`]]);
         ppal.push(cols[i]);
-        tc[r.essence_fr] = cols[i];
+        tc[r[`essence_${lang}`]] = cols[i];
       });
       ppal.push("orange");
       setTreeColors(tc);
@@ -144,7 +146,7 @@ const TreeMap = (props) => {
         let s = m[0].replaceAll("-", "");
         return {
           sigle: s,
-          essence_fr: _.find(species, { sigle: s }).essence_fr,
+          [`essence_${lang}`]: _.find(species, { sigle: s })[`essence_${lang}`],
           count: m[1],
         };
       });
@@ -184,7 +186,7 @@ const TreeMap = (props) => {
           setMapLoaded(true);
           setFeatures(mapRef.current.queryRenderedFeatures());
           mapRef.current.on("mouseenter", "arbres", () => {
-            if (mapRef.current.getZoom() > 14) {
+            if (mapRef.current.getZoom() > 15) {
               mapRef.current.getCanvas().style.cursor = "pointer";
             }
           });
@@ -198,11 +200,11 @@ const TreeMap = (props) => {
             const popupText = feat.map(
               (f) =>
                 `<ul style="list-style-type:none;text-align:left;margin-left:-30px"><li><strong>Espèce (fr)</strong>: ${
-                  f.properties.Essence_fr
-                }</li><li><strong>Espèce (en)</strong>: ${
-                  f.properties.ESSENCE_ANG
+                  f.properties.essence_fr
+                }</li><li><strong>${t("Espèce (en)", lang)}</strong>: ${
+                  f.properties.essence_en
                 }</li><li><strong>Nom scientifique</strong>: ${
-                  f.properties.Essence_latin
+                  f.properties.essence_latin
                 }</li><li><strong>Diamètre (cm)</strong>: ${
                   f.properties.DHP
                 }</li><li><strong>Date de la plantation</strong>: ${

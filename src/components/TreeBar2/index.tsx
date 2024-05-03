@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 
 export default function TreeBar2(props: any) {
-  const { data, treeColors } = props;
+  const { data, treeColors, lang, t } = props;
   const [bars, setBars] = useState([]);
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function TreeBar2(props: any) {
         <Grid container sx={{ marginBottom: "5px" }}>
           <Grid item xs={12}>
             <Typography sx={{ fontSize: 15, color: "white" }}>
-              {d.essence_fr}
+              {d[`essence_${lang}`]}
             </Typography>
           </Grid>
           <Grid item xs={10}>
@@ -65,7 +65,7 @@ export default function TreeBar2(props: any) {
               <Grid item xs={11 - (10 * d.count) / w} sx={{ height: "15px" }}>
                 <Box
                   sx={{
-                    background: treeColors[d.essence_fr],
+                    background: treeColors[d[`essence_${lang}`]],
                     marginLeft: "8px",
                     borderRadius: "10px",
                     height: "15px",

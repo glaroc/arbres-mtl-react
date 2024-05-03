@@ -1,7 +1,8 @@
-export const lang = "fr";
-
-export const t = (word: string) => {
-  return messages[lang][word];
+export const t = (word: string, lang: string) => {
+  if (word in messages[lang]) {
+    return messages[lang][word];
+  }
+  return word;
 };
 
 export const messages: any = {
@@ -37,6 +38,8 @@ export const messages: any = {
     number_of_samples: "Number of samples",
     species_list: "Species list",
     search_species: "Search species",
+    "Arbres publics de Montréal": "Public trees of Montreal",
+    "Nombre d'arbres à l'écran": "Number of trees on screen",
   },
   fr: {
     results: "Résultats",

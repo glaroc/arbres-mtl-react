@@ -6,7 +6,6 @@ import {
   CustomPaper,
 } from "../../styles/customMUI";
 import Search from "@mui/icons-material/Search";
-import { t, lang } from "../../helpers/translations";
 import theme from "../../styles/theme";
 
 export default function SearchBar(props: any) {
@@ -16,6 +15,8 @@ export default function SearchBar(props: any) {
     searchButtonClicked,
     treeColors,
     options,
+    t,
+    lang,
   } = props;
 
   return (
@@ -55,9 +56,11 @@ export default function SearchBar(props: any) {
           <TextField
             {...params}
             variant="outlined"
-            label={t("search_by_species")}
+            label={t("Rechercher par espèce", lang)}
             placeholder={
-              searchBarValue.length === 0 ? t("enter_species_name") : ""
+              searchBarValue.length === 0
+                ? t("Entrer le nom de l'espèce", lang)
+                : ""
             }
           />
         )}
