@@ -40,6 +40,7 @@ export const messages: any = {
     search_species: "Search species",
     "Arbres publics de Montréal": "Public trees of Montreal",
     "Nombre d'arbres à l'écran": "Number of trees on screen",
+    "Rechercher par espèce": "Search by species",
   },
   fr: {
     results: "Résultats",
