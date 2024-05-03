@@ -191,6 +191,28 @@ export default function App(props: any) {
                 </CardContent>
               </Card>
             </Grid>
+            <Grid item xs={12} sx={{ bottom: "20px" }}>
+              <Typography
+                sx={{
+                  fontSize: "22px",
+                  fontFamily: "'Roboto Slab', serif",
+                  fontWeight: "bold",
+                  color: "#8cc63f",
+                  float: "right",
+                  background: "#222",
+                  width: "25px",
+                  padding: "5px 0px 5px 15px",
+                  borderRadius: "20px",
+                }}
+              >
+                <a
+                  style={{ color: "#8cc63f" }}
+                  href="http://quebio.ca/fr/arbres_mtl_desc"
+                >
+                  ?
+                </a>
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
       </Grid>
