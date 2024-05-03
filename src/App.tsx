@@ -5,7 +5,7 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
 import type { MapRef } from "react-map-gl";
-import { useLocation } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Grid,
   Card,
@@ -28,6 +28,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import theme from "./styles/theme";
 import SearchBar from "./components/SearchBar";
 import { getTreesNamesCount } from "./helpers/api";
+import { t } from "./helpers/translations";
 
 export default function App(props: any) {
   const mapRef: any = useRef<MapRef>();
@@ -46,6 +47,15 @@ export default function App(props: any) {
   const [select, setSelect] = useState(<></>);
   const [searchBarValue, setSearchBarValue] = useState([]);
   const [options, setOptions] = useState([]);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [lang, setLang]: any = useState("fr");
+
+  useEffect(() => {
+    let lan = searchParams.get("lang");
+    if (lan === "fr" || lan === "en") {
+      setLang(lan);
+    }
+  }, []);
 
   const ITEM_HEIGHT = 48;
   const ITEM_PADDING_TOP = 8;
@@ -64,12 +74,12 @@ export default function App(props: any) {
     getTreesNamesCount().then((res) => {
       let names = res
         .sort((a: any, b: any) =>
-          a.essence_fr
+          a[`essence_${lang}`]
             .toLowerCase()
-            .localeCompare(b.essence_fr.toLowerCase(), "fr")
+            .localeCompare(b[`essence_${lang}`].toLowerCase(), lang)
         )
         .map((r: any) => ({
-          label: r.essence_fr,
+          label: r[`essence_${lang}`],
           id: r.sigle,
         }));
       setSpecies(res);
@@ -90,6 +100,8 @@ export default function App(props: any) {
             treeColors={treeColors}
             setTreeColors={setTreeColors}
             searchBarValue={searchBarValue}
+            lang={lang}
+            t={t}
           />
         </Grid>
         <Grid
@@ -111,7 +123,7 @@ export default function App(props: any) {
                       color: "white",
                     }}
                   >
-                    Arbres publics de Montréal
+                    {`${t("Arbres publics de Montréal", lang)}`}
                   </Typography>
                 </Grid>
                 <Grid
@@ -145,7 +157,7 @@ export default function App(props: any) {
               >
                 <CardContent sx={{ paddingTop: "10px", paddingBottom: "0px" }}>
                   <Typography sx={{ color: "#8cc63f", fontSize: 12 }}>
-                    Nombre d'arbres à l'écran
+                    {t("Nombre d'arbres à l'écran", lang)}
                   </Typography>
                   <Typography
                     sx={{ fontSize: 30, color: "white", fontWeight: "bold" }}
@@ -161,13 +173,20 @@ export default function App(props: any) {
                 searchBarValue={searchBarValue}
                 setSearchBarValue={setSearchBarValue}
                 treeColors={treeColors}
+                lang={lang}
+                t={t}
               ></SearchBar>
             </Grid>
             <Grid item xs={12}>
               <Card sx={{ background: "#333333" }} elevation={0}>
                 <CardContent sx={{ paddingTop: 0 }}>
                   <Typography sx={{ fontSize: 30, color: "white" }}>
-                    <TreeBar2 data={speciesCount} treeColors={treeColors} />
+                    <TreeBar2
+                      data={speciesCount}
+                      treeColors={treeColors}
+                      lang={lang}
+                      t={t}
+                    />
                   </Typography>
                 </CardContent>
               </Card>
