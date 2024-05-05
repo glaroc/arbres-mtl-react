@@ -41,6 +41,7 @@ const TreeMap = (props) => {
   const [filter, setFilter] = useState(["all"]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [lastCount, setLastCount] = useState(Date.now());
+  const [processingFeatures, setProcessingFeatures] = useState(false);
   const [features, setFeatures] = useState([]);
   const [clickedPoint, setClickedPoint] = useState({});
   const mapRef = useRef();
@@ -114,8 +115,7 @@ const TreeMap = (props) => {
   }, [searchBarValue]);
 
   useEffect(() => {
-    let cnt = 0;
-    let totc = 0;
+    let ignore = false;
     if (features.length > 0 && species) {
       var sp = _.countBy(
         features
@@ -138,29 +138,30 @@ const TreeMap = (props) => {
           count: m[1],
         };
       });
+      const cnt = Object.values(sp).reduce((a, b) => a + b, 0);
       setSpeciesCount(k);
-      cnt = Object.values(sp).reduce((a, b) => a + b, 0);
       setNumTrees(cnt);
     }
+    return () => {
+      ignore = true;
+    };
   }, [features, filter, pal]);
 
-  const PMTilesTrees = (props) => {
-    return (
-      <Source
-        id="arbres"
-        type="vector"
-        url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_mtl.pmtiles`}
-      >
-        <Layer {...arbresLayer} />
-      </Source>
-    );
-  };
+  const PMTilesTrees = () => (
+    <Source
+      id="arbres"
+      type="vector"
+      url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_mtl.pmtiles`}
+    >
+      <Layer {...arbresLayer} />
+    </Source>
+  );
 
   return (
     <div id="App" className="App">
       <Map
         ref={mapRef}
-        reuseMaps
+        //reuseMaps
         style={{ width: "100vw", height: "100vh" }}
         initialViewState={{
           longitude: -73.5,
@@ -168,11 +169,21 @@ const TreeMap = (props) => {
           zoom: 10,
         }}
         onMoveEnd={() => {
-          setFeatures(mapRef.current.queryRenderedFeatures());
+          setFeatures(
+            mapRef.current.queryRenderedFeatures({
+              layers: ["arbres"],
+              validate: false,
+            })
+          );
         }}
         onLoad={() => {
           setMapLoaded(true);
-          setFeatures(mapRef.current.queryRenderedFeatures());
+          setFeatures(
+            mapRef.current.queryRenderedFeatures({
+              layers: ["arbres"],
+              validate: false,
+            })
+          );
           mapRef.current.on("mouseenter", "arbres", () => {
             if (mapRef.current.getZoom() > 15) {
               mapRef.current.getCanvas().style.cursor = "pointer";
