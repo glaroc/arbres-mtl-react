@@ -45,18 +45,6 @@ const TreeMap = (props) => {
   const [clickedPoint, setClickedPoint] = useState({});
   const mapRef = useRef();
 
-  const tree_colors = {
-    Acer: "lightgreen",
-    Quercus: "purple",
-    Fraxinus: "lightblue",
-    Betula: "white",
-    Populus: "yellow",
-    Tilia: "chocolate",
-    Pinus: "goldenrod",
-    Ulmus: "cyan",
-    Juglans: "brown",
-  };
-
   const arbresLayer = {
     id: "arbres",
     source: "arbres",
