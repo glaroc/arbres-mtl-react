@@ -1,27 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import "./styles.css";
-import { Map, Popup } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
 import type { MapRef } from "react-map-gl";
 import { useSearchParams } from "react-router-dom";
-import {
-  Grid,
-  Card,
-  CardContent,
-  Box,
-  Select,
-  OutlinedInput,
-  Chip,
-  Typography,
-  MenuItem,
-  FilledInput,
-  InputLabel,
-  Input,
-  TextField,
-} from "@mui/material";
-//import AtlasHex from "./components/AtlasHex";
+import { Grid, Card, CardContent, Box, Typography } from "@mui/material";
 import TreeMap from "./components/TreeMap";
 import TreeBar2 from "./components/TreeBar2";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
@@ -33,18 +17,11 @@ import { t } from "./helpers/translations";
 export default function App(props: any) {
   const mapRef: any = useRef<MapRef>();
   const popupRef: any = useRef<maplibregl.Popup>();
-  const [showPopup, setShowPopup] = useState<boolean>(true);
-  const [clickCoor, setClickCoor]: any = useState([0, 0]);
-  const [popup, setPopup] = useState(<></>);
-  const [search, setSearch] = useState("");
   const [numTrees, setNumTrees]: any = useState(0);
   const [speciesCount, setSpeciesCount]: any = useState([]);
   const [totalSpeciesCount, setTotalSpeciesCount]: any = useState([]);
-  const [sources, setSources]: any = useState([]);
   const [species, setSpecies]: any = useState([]);
-  const [selectedDate, setSelectedDate] = useState("2024-01-01");
   const [treeColors, setTreeColors] = useState({});
-  const [select, setSelect] = useState(<></>);
   const [searchBarValue, setSearchBarValue] = useState([]);
   const [options, setOptions] = useState([]);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -56,19 +33,6 @@ export default function App(props: any) {
       setLang(lan);
     }
   }, []);
-
-  const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
-
-  const DATADATE = "2024-01-24";
-  const MenuProps = {
-    PaperProps: {
-      style: {
-        maxHeight: ITEM_HEIGHT * 8.5 + ITEM_PADDING_TOP,
-        width: 600,
-      },
-    },
-  };
 
   useEffect(() => {
     getTreesNamesCount().then((res) => {
@@ -207,6 +171,7 @@ export default function App(props: any) {
               >
                 <a
                   style={{ color: "#8cc63f" }}
+                  target="_blank"
                   href="http://quebio.ca/fr/arbres_mtl_desc"
                 >
                   ?
