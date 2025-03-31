@@ -13,7 +13,7 @@ rm -rif /tmp/arbres_publics_mtl.csv
 docker compose run --rm spatial rm -rif /tmp/arbres_publics_mtl.csv && ogr2ogr -overwrite -clipsrc -73.95 45.4 -73.46 45.75 -f CSV -dialect SQLITE -sql "SELECT ESSENCE_ANG as essence_en, Essence_fr as essence_fr, Essence_latin as essence_latin, *, '-' || SIGLE || '-' as sp_code FROM \"arbres-publics\"" /tmp/arbres_publics_mtl.csv /tmp/arbres-publics.csv && chmod 777 /tmp/arbres_publics_mtl.csv
 
 echo -e "== Generating GeoParquets =="
-rm -rif /tmp/arbres_publics_mtl.parquet
+sudo rm -rif /tmp/arbres_publics_mtl.parquet
 docker compose run --rm spatial ogr2ogr -clipsrc -73.95 45.4 -73.46 45.75 -oo Y_POSSIBLE_NAMES=Latitude -oo X_POSSIBLE_NAMES=Longitude -f Parquet -s_srs EPSG:4326 -t_srs EPSG:4326 /tmp/arbres_publics_mtl.parquet /tmp/arbres_publics_mtl.csv
 
 echo -e "== Generating GeoJSON =="

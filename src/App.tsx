@@ -28,7 +28,16 @@ export default function App(props: any) {
   const [lang, setLang]: any = useState("fr");
 
   useEffect(() => {
-    let lan = searchParams.get("lang");
+    let lan = "fr";
+    if (window.location.href.includes("/fr/")) {
+      lan = "fr";
+    }
+    if (window.location.href.includes("/en/")) {
+      lan = "en";
+    }
+    if (searchParams.get("lang")) {
+      lan = searchParams.get("lang");
+    }
     if (lan === "fr" || lan === "en") {
       setLang(lan);
     }
@@ -49,7 +58,7 @@ export default function App(props: any) {
       setSpecies(res);
       setOptions(names);
     });
-  }, []);
+  }, [lang]);
 
   return (
     <ThemeProvider theme={theme}>
@@ -97,7 +106,7 @@ export default function App(props: any) {
                 >
                   <Box
                     sx={{
-                      background: `url("${"icon_150.png"}")`,
+                      background: `url("/sites/all/modules/quebio/templates/arbres-pmtiles-react/${"icon_150.png"}")`,
                       width: "60px",
                       height: "60px",
                       backgroundSize: "cover",
