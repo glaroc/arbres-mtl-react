@@ -54,7 +54,12 @@ export default function App(props: any) {
         .map((r: any) => ({
           label: r[`essence_${lang}`],
           id: r.sigle,
-        }));
+        }))
+        .filter(
+          (r: any) =>
+            !r.label.toLowerCase().includes("nom") &&
+            !r.label.toLowerCase().includes("name")
+        );
       setSpecies(res);
       setOptions(names);
     });
