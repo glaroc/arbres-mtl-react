@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback, memo } from "react";
 import "../../styles.css";
-import { Map, Popup, Layer, Source } from "react-map-gl";
-import maplibregl from "maplibre-gl";
+import { Map, Popup, Layer, Source, useMap } from "react-map-gl";
+import maplibregl, { setWorkerCount } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { Protocol } from "pmtiles";
 //import duckdb_init from "../../helpers/duckdb";
@@ -65,6 +65,7 @@ const TreeMap = (props) => {
   useEffect(() => {
     let protocol = new Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
+    setWorkerCount(2);
     return () => {
       maplibregl.removeProtocol("pmtiles");
     };
@@ -207,13 +208,13 @@ const TreeMap = (props) => {
                 }</li><li><strong>Diamètre (cm)</strong>: ${
                   f.properties.DHP
                 }</li><li><strong>Date de la plantation</strong>: ${
-                  f.properties.Date_plantation != ""
-                    ? new Date(f.properties.Date_plantation).toLocaleDateString(
+                  f.properties.Date_Plantation != ""
+                    ? new Date(f.properties.Date_Plantation).toLocaleDateString(
                         "fr-ca"
                       )
                     : "indisponible"
                 }</li><li><strong>Date du dernier relevé</strong>: ${new Date(
-                  f.properties.Date_releve
+                  f.properties.Date_Releve
                 ).toLocaleDateString("fr-ca")}</li></ul>`
             );
             if (feat.length === 0) {

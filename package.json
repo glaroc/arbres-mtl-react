@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build --base=/arbres/mtl/dashboard/ && s3cmd sync --recursive --delete-removed --no-mime-magic dist/* s3://arbres/mtl/dashboard/ &&  s3cmd setacl --recursive s3://arbres/mtl/dashboard/ --acl-public",
+    "quebio": "vite build --base=/sites/all/modules/quebio/templates/arbres-pmtiles-react/ && mv dist/index.html dist/index.php && rsync -rvz -e 'ssh -p 535' --progress dist/* quebio@quebio.ca:/var/www/quebio.ca/quebio_new/sites/all/modules/quebio/templates/arbres-pmtiles-react/",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
