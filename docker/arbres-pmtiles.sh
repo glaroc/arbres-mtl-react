@@ -18,7 +18,7 @@ docker compose run --rm spatial ogr2ogr -clipsrc -73.95 45.4 -73.46 45.75 -oo Y_
 
 echo -e "== Generating GeoJSON =="
 rm -rif /tmp/arbres_publics_mtl.geojson
-docker compose run --rm spatial rm -rif /tmp/arbres_publics_mtl.geojson && ogr2ogr -overwrite -clipsrc -73.95 45.4 -73.46 45.75 -oo Y_POSSIBLE_NAMES=Latitude -oo X_POSSIBLE_NAMES=Longitude  -f GeoJSON -s_srs EPSG:4326 -t_srs EPSG:4326 /tmp/arbres_publics_mtl.geojson /tmp/arbres_publics_mtl.csv && chmod 777 /tmp/arbres_publics_mtl.geojson
+docker compose run --rm spatial rm -rif /tmp/arbres_publics_mtl.geojson && ogr2ogr -overwrite -clipsrc -73.95 45.4 -73.46 45.75 -oo Y_POSSIBLE_NAMES=Latitude -oo X_POSSIBLE_NAMES=Longitude  -f GeoJSON /tmp/arbres_publics_mtl.geojson /tmp/arbres_publics_mtl.csv && chmod 777 /tmp/arbres_publics_mtl.geojson
 
 echo -e "== Sending files to cloud =="
 docker compose run --rm  spatial s5cmd cp -acl 'public-read' /tmp/arbres_publics_mtl.parquet s3://arbres/mtl/parquet/

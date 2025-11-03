@@ -17,6 +17,7 @@ const TreeMap = (props) => {
     setTreeColors,
     treeColors,
     searchBarValue,
+    baseLayer,
     species,
     lang,
     t,
@@ -244,7 +245,7 @@ const TreeMap = (props) => {
           sources: {
             background: {
               type: "raster",
-              tiles: ["https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"],
+              tiles: [baseLayer],
               tileSize: 256,
             },
           },
