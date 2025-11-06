@@ -200,7 +200,7 @@ const TreeMap = (props) => {
             const feat = mapRef.current.queryRenderedFeatures(e.point);
             const popupText = feat.map(
               (f) =>
-                `<ul style="list-style-type:none;text-align:left;margin-left:-30px"><li><strong>Espèce (fr)</strong>: ${
+                `<ul style="list-style-type:none;text-align:left;margin-left:-30px;color:#000;"><li><strong>Espèce (fr)</strong>: ${
                   f.properties.essence_fr
                 }</li><li><strong>${t("Espèce (en)", lang)}</strong>: ${
                   f.properties.essence_en
