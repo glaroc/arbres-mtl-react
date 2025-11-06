@@ -95,12 +95,13 @@ export default function App(props) {
 
   const Puller = styled("div")(({ theme }) => ({
     width: 30,
-    height: 6,
+    height: 8,
     backgroundColor: "#fff",
     borderRadius: 3,
     position: "absolute",
-    top: 8,
-    left: "calc(50% - 15px)",
+    top: 0,
+    left: "calc(50% - 30px)",
+    marginTop: 4,
     ...theme.applyStyles("dark", {
       backgroundColor: "#fff",
     }),
@@ -149,7 +150,50 @@ export default function App(props) {
         </Grid>
       )}
       {isMobile && (
-        <>
+        <Box sx={{position: 'relative', overflow: 'visible', backghroundColor: '#333'}}>
+          <SwipeableDrawer
+            anchor="bottom"
+            open={open}
+            onClose={() => {
+              setOpen(false);
+            }}
+            onOpen={() => {
+              setOpen(true);
+            }}
+            swipeAreaWidth={56}
+            disableSwipeToOpen={false}
+            keepMounted
+            sx={{overflow: 'visible'}}
+          >
+            <Box
+              sx={{
+                position: "relative",
+                overflow: "visible",
+                borderTopLeftRadius: 8,
+                borderTopRightRadius: 8,
+                visibility: "visible",
+                right: 0,
+                left: 0,
+                top: -56,
+                backgroundColor: "#333",
+                marginTop: "10px",
+              }}
+            >
+              <Puller />
+            </Box>
+            <Tray
+              {...{
+                searchBarValue,
+                speciesCount,
+                setSearchBarValue,
+                treeColors,
+                numTrees,
+                options,
+                lang,
+                t,
+              }}
+            />
+          </SwipeableDrawer>
           <Grid container>
             <Grid xs={12} item>
               <>
@@ -170,47 +214,7 @@ export default function App(props) {
               </>
             </Grid>
           </Grid>
-          <SwipeableDrawer
-            anchor="bottom"
-            open={open}
-            onClose={() => {
-              setOpen(false);
-            }}
-            onOpen={() => {
-              setOpen(true);
-            }}
-            swipeAreaWidth={56}
-            disableSwipeToOpen={false}
-            keepMounted
-          >
-            <Box
-              sx={{
-                position: "absolute",
-                top: -56,
-                borderTopLeftRadius: 8,
-                borderTopRightRadius: 8,
-                visibility: "visible",
-                right: 0,
-                left: 0,
-              }}
-            >
-              <Puller />
-              advadv
-            </Box>
-            <Tray
-              {...{
-                searchBarValue,
-                speciesCount,
-                setSearchBarValue,
-                treeColors,
-                numTrees,
-                options,
-                lang,
-                t,
-              }}
-            />
-          </SwipeableDrawer>
-        </>
+        </Box>
       )}
     </ThemeProvider>
   );
@@ -227,7 +231,7 @@ export function Tray({
   t,
 }) {
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={3} sx={{ background: "#333333"}}>
       <Grid item xs={12}>
         <Grid container>
           <Grid item xs={9} sx={{ paddingLeft: "20px" }}>
