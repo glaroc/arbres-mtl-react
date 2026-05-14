@@ -20,7 +20,11 @@ import theme from "./styles/theme";
 import SearchBar from "./components/SearchBar";
 import { getTreesNamesCount } from "./helpers/api";
 import { t } from "./helpers/translations";
-import logo from "./components/icon_150.png";
+import logoQC from "./assets/arbres_qc_logo_150.png";
+import logoMTL from "./assets/arbres_mtl_logo_150.png";
+
+const logo = import.meta.env.VITE_CITY === "qc" ? logoQC : logoMTL;
+
 import { styled } from "@mui/material";
 
 export default function App(props) {
@@ -34,12 +38,14 @@ export default function App(props) {
   const [searchBarValue, setSearchBarValue] = useState([]);
   const [options, setOptions] = useState([]);
   const [baseLayer, setBaseLayer] = useState(
-    "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+    "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
   );
   const [searchParams, setSearchParams] = useSearchParams();
   const [lang, setLang] = useState("fr");
   const [isMobile, setIsMobile] = useState(false);
   const [open, setOpen] = useState(false);
+
+  const city = import.meta.env.VITE_CITY || "mtl";
 
   useEffect(() => {
     let lan = "fr";
@@ -68,12 +74,12 @@ export default function App(props) {
   }, []);
 
   useEffect(() => {
-    getTreesNamesCount().then((res) => {
+    getTreesNamesCount(city).then((res) => {
       let names = res
         .sort((a, b) =>
           a[`essence_${lang}`]
             .toLowerCase()
-            .localeCompare(b[`essence_${lang}`].toLowerCase(), lang)
+            .localeCompare(b[`essence_${lang}`].toLowerCase(), lang),
         )
         .map((r) => ({
           label: r[`essence_${lang}`],
@@ -82,7 +88,7 @@ export default function App(props) {
         .filter(
           (r) =>
             !r.label.toLowerCase().includes("nom") &&
-            !r.label.toLowerCase().includes("name")
+            !r.label.toLowerCase().includes("name"),
         );
       setSpecies(res);
       setOptions(names);
@@ -113,6 +119,7 @@ export default function App(props) {
         <Grid container>
           <Grid xs={6} md={7} lg={9} item>
             <TreeMap
+              city={city}
               setNumTrees={setNumTrees}
               setSpeciesCount={setSpeciesCount}
               speciesCount={speciesCount}
@@ -136,6 +143,7 @@ export default function App(props) {
           >
             <Tray
               {...{
+                city,
                 searchBarValue,
                 speciesCount,
                 setSearchBarValue,
@@ -150,7 +158,13 @@ export default function App(props) {
         </Grid>
       )}
       {isMobile && (
-        <Box sx={{position: 'relative', overflow: 'visible', backghroundColor: '#333'}}>
+        <Box
+          sx={{
+            position: "relative",
+            overflow: "visible",
+            backghroundColor: "#333",
+          }}
+        >
           <SwipeableDrawer
             anchor="bottom"
             open={open}
@@ -163,7 +177,7 @@ export default function App(props) {
             swipeAreaWidth={56}
             disableSwipeToOpen={false}
             keepMounted
-            sx={{overflow: 'visible'}}
+            sx={{ overflow: "visible" }}
           >
             <Box
               sx={{
@@ -183,6 +197,7 @@ export default function App(props) {
             </Box>
             <Tray
               {...{
+                city,
                 searchBarValue,
                 speciesCount,
                 setSearchBarValue,
@@ -198,6 +213,7 @@ export default function App(props) {
             <Grid xs={12} item>
               <>
                 <TreeMap
+                  city={city}
                   setNumTrees={setNumTrees}
                   setSpeciesCount={setSpeciesCount}
                   speciesCount={speciesCount}
@@ -221,6 +237,7 @@ export default function App(props) {
 }
 
 export function Tray({
+  city,
   searchBarValue,
   speciesCount,
   setSearchBarValue,
@@ -231,7 +248,7 @@ export function Tray({
   t,
 }) {
   return (
-    <Grid container spacing={3} sx={{ background: "#333333"}}>
+    <Grid container spacing={3} sx={{ background: "#333333" }}>
       <Grid item xs={12}>
         <Grid container>
           <Grid item xs={9} sx={{ paddingLeft: "20px" }}>
@@ -243,7 +260,7 @@ export function Tray({
                 color: "white",
               }}
             >
-              {`${t("Arbres publics de Montréal", lang)}`}
+              {import.meta.env.VITE_PAGE_TITLE || "Arbres publics"}
             </Typography>
           </Grid>
           <Grid item xs={3} sx={{ background: "none", textAlign: "center" }}>
@@ -324,7 +341,11 @@ export function Tray({
           <a
             style={{ color: "#8cc63f" }}
             target="_blank"
-            href="http://quebio.ca/fr/arbres_mtl_desc"
+            href={
+              city === "mtl"
+                ? "http://quebio.ca/fr/arbres_mtl_desc"
+                : "http://quebio.ca/fr/arbres_qc_desc"
+            }
           >
             ?
           </a>
