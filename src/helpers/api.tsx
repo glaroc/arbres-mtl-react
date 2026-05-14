@@ -27,7 +27,7 @@ export const getObsDatasetSummaryAPI = async ({
 
   const result: any = await makePostRequest(
     "/rpc/obs_dataset_summary",
-    dataSummaryParamObj
+    dataSummaryParamObj,
   );
   return result.data || [];
 };
@@ -37,7 +37,7 @@ export const getSources = async (parquet_date: string) => {
   try {
     result = await axios.get(
       `https://object-arbutus.cloud.computecanada.ca/bq-io/atlas/parquet/atlas_datasets_${parquet_date}.json`,
-      {}
+      {},
     );
   } catch (error) {
     const { message, response } = error as any;
@@ -52,7 +52,7 @@ export const getTreesCount = async (
   minx: number,
   maxx: number,
   miny: number,
-  maxy: number
+  maxy: number,
 ) => {
   let result;
   const params = {
@@ -65,7 +65,7 @@ export const getTreesCount = async (
     result = await axios.get(
       `https://geoio.biodiversite-quebec.ca/trees_mtl/count/`,
       /*`http://localhost:7788/trees_mtl/count/`,*/
-      { params: params, withCredentials: false }
+      { params: params, withCredentials: false },
     );
   } catch (error) {
     const { message, response } = error as any;
@@ -82,7 +82,7 @@ export const getTreesSpeciesCount = async (
   miny: number,
   maxy: number,
   limit: number = 10,
-  species_name: string = ""
+  species_name: string = "",
 ) => {
   let result;
   const params = {
@@ -97,7 +97,7 @@ export const getTreesSpeciesCount = async (
     result = await axios.get(
       `https://geoio.biodiversite-quebec.ca/trees_mtl/species_count/`,
       /*`http://localhost:7788/trees_mtl/count/`,*/
-      { params: params, withCredentials: false }
+      { params: params, withCredentials: false },
     );
   } catch (error) {
     const { message, response } = error as any;
@@ -127,7 +127,7 @@ export const getTreesGeoJSON = async (species_name: string) => {
   try {
     result = await axios.get(
       `https://geoio.biodiversite-quebec.ca/trees_mtl/species_geojson/`,
-      { params: params, withCredentials: false }
+      { params: params, withCredentials: false },
     );
   } catch (error) {
     const { message, response } = error as any;
@@ -141,10 +141,7 @@ export const getTreesGeoJSON = async (species_name: string) => {
 export const getTreesNamesCount = async () => {
   let result;
   try {
-    result = await axios.get(
-      `https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_publics_mtl_freq.json`,
-      {}
-    );
+    result = await axios.get(import.meta.env.VITE_FREQUENCY_JSON, {});
   } catch (error) {
     const { message, response } = error as any;
     const { details, message: respMessage } = response?.data;
@@ -171,7 +168,7 @@ export const makePostRequest = async (url: string, obj: any) => {
       {
         headers,
         signal,
-      }
+      },
     );
   } catch (error) {
     const { message, response } = error as any;
