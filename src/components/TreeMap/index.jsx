@@ -117,18 +117,22 @@ const TreeMap = (props) => {
   }, [searchBarValue]);
 
   useEffect(() => {
+    console.log("useEffect triggered", features.length, species?.length);;
     let ignore = false;
     if (features.length > 0 && species) {
+      console.log( "sp_codes:",
+      features.map(m => m.properties.sp_code));
       var sp = _.countBy(
         features
           .map((m) => m.properties.sp_code)
           .join(",")
           .split(",")
       );
+      console.log("SP object:", sp);
       if (searchBarValue.length > 0) {
         let s = searchBarValue.map((v) => v.id);
         let ss = {};
-        s.map((m) => (ss[m.replaceAll("-", "")] = sp[`-${m}-`]));
+        s.map((m) => (ss[m.replaceAll("-", "")] = sp[`-${m}-`] || 0));
         sp = ss;
       }
       let topsp = _.take(_.sortBy(_.toPairs(sp), 1).reverse(), 8);
