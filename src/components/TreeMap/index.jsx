@@ -11,6 +11,7 @@ import _ from "lodash";
 
 const TreeMap = (props) => {
   const {
+    city,
     setNumTrees,
     setSpeciesCount,
     speciesCount,
@@ -126,7 +127,7 @@ const TreeMap = (props) => {
         features
           .map((m) => m.properties.sp_code)
           .join(",")
-          .split(",")
+          .split(","),
       );
       console.log("SP object:", sp);
       if (searchBarValue.length > 0) {
@@ -157,7 +158,7 @@ const TreeMap = (props) => {
     <Source
       id="arbres"
       type="vector"
-      url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_mtl.pmtiles`}
+      url={`pmtiles://${import.meta.env.VITE_PMTILES_URL}`}
     >
       <Layer {...arbresLayer} />
     </Source>
@@ -170,16 +171,16 @@ const TreeMap = (props) => {
         //reuseMaps
         style={{ width: "100vw", height: "100vh" }}
         initialViewState={{
-          longitude: -73.5,
-          latitude: 45.53,
-          zoom: 10,
+          longitude: import.meta.env.VITE_LONGITUDE,
+          latitude: import.meta.env.VITE_LATITUDE,
+          zoom: import.meta.env.VITE_ZOOM,
         }}
         onMoveEnd={() => {
           setFeatures(
             mapRef.current.queryRenderedFeatures({
               layers: ["arbres"],
               validate: false,
-            })
+            }),
           );
         }}
         onLoad={() => {
@@ -188,7 +189,7 @@ const TreeMap = (props) => {
             mapRef.current.queryRenderedFeatures({
               layers: ["arbres"],
               validate: false,
-            })
+            }),
           );
           mapRef.current.on("mouseenter", "arbres", () => {
             if (mapRef.current.getZoom() > 15) {
@@ -215,12 +216,16 @@ const TreeMap = (props) => {
                 }</li><li><strong>Date de la plantation</strong>: ${
                   f.properties.Date_Plantation != ""
                     ? new Date(f.properties.Date_Plantation).toLocaleDateString(
-                        "fr-ca"
+                        "fr-ca",
                       )
                     : "indisponible"
-                }</li><li><strong>Date du dernier relevé</strong>: ${new Date(
-                  f.properties.Date_Releve
-                ).toLocaleDateString("fr-ca")}</li></ul>`
+                }</li><li><strong>Date du dernier relevé</strong>: ${
+                  f.properties.Date_Releve && f.properties.Date_Releve != ""
+                    ? new Date(f.properties.Date_Releve).toLocaleDateString(
+                        "fr-ca",
+                      )
+                    : "indisponible"
+                }</li></ul>`,
             );
             if (feat.length === 0) {
               setShowPopup(false);
@@ -240,7 +245,7 @@ const TreeMap = (props) => {
                     __html: popupText.join("<hr>"),
                   }}
                 ></div>
-              </Popup>
+              </Popup>,
             );
           }
         }}

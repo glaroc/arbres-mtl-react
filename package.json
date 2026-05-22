@@ -5,9 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev-mtl": "VITE_CITY=mtl vite --mode mtl ",
+    "dev-qc": "VITE_CITY=qc vite --mode qc ",
     "build": "vite build --base=/arbres/mtl/dashboard/ && s3cmd sync --recursive --delete-removed --no-mime-magic dist/* s3://arbres/mtl/dashboard/ &&  s3cmd setacl --recursive s3://arbres/mtl/dashboard/ --acl-public",
-    "quebio": "vite build --base=/sites/all/modules/quebio/templates/arbres-pmtiles-react/ && mv dist/index.html dist/index.php && rsync -rvz -e 'ssh -p 535' --progress dist/* quebio@quebio.ca:/var/www/quebio.ca/quebio_new/sites/all/modules/quebio/templates/arbres-pmtiles-react/",
+    "quebio-mtl": "vite build  --mode mtl --base=/sites/all/modules/quebio/templates/arbres-pmtiles-react-mtl/ && mv dist/index.html dist/index.php && rsync -rvz -e 'ssh -p 535' --progress dist/* quebio@quebio.ca:/var/www/quebio.ca/quebio_new/sites/all/modules/quebio/templates/arbres-pmtiles-react-mtl/",
+    "quebio-qc": "vite build --mode qc --base=/sites/all/modules/quebio/templates/arbres-pmtiles-react-qc/ && mv dist/index.html dist/index.php && rsync -rvz -e 'ssh -p 535' --progress dist/* quebio@quebio.ca:/var/www/quebio.ca/quebio_new/sites/all/modules/quebio/templates/arbres-pmtiles-react-qc/",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "pmtiles-mtl": "docker compose -f docker/compose.yml --env-file docker/.env run --rm spatial sh /app/arbres-pmtiles-mtl.sh",
+    "pmtiles-qc": "docker compose -f docker/compose.yml --env-file docker/.env run --rm spatial sh /app/arbres-pmtiles-qc.sh",
     "preview": "vite preview"
   },
   "dependencies": {
