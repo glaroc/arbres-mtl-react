@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, memo } from "react";
+import { useEffect, useState, useRef, useCallback, memo, useMemo } from "react";
 import "../../styles.css";
 import { Map, Popup, Layer, Source, useMap } from "react-map-gl";
 import maplibregl, { setWorkerCount } from "maplibre-gl";
@@ -47,6 +47,56 @@ const TreeMap = (props) => {
   const [features, setFeatures] = useState([]);
   const [clickedPoint, setClickedPoint] = useState({});
   const mapRef = useRef();
+
+  const getVisibleFeatures = useCallback(() => {
+    if (!mapRef.current) return [];
+    const mapCanvas = mapRef.current.getCanvas();
+    let visibleWidth = mapCanvas.clientWidth;
+    let visibleHeight = mapCanvas.clientHeight;
+    const desktopSidebar = document.getElementById("ui-tray");
+    const mobileDrawer = document.getElementById("ui-tray-mobile");
+    if (desktopSidebar && window.innerWidth > 767) {
+      const rect = desktopSidebar.getBoundingClientRect();
+      if (rect.left > 0) visibleWidth = rect.left; 
+    }
+    if (mobileDrawer && window.innerWidth <= 767) {
+      const drawerPaper = mobileDrawer.querySelector('.MuiDrawer-paper');
+      if (drawerPaper) {
+        const rect = drawerPaper.getBoundingClientRect();
+        if (rect.top > 0) visibleHeight = rect.top;
+      }
+    }
+    const boundingBox = [
+      [0, 0], 
+      [visibleWidth, visibleHeight] 
+    ];
+    return mapRef.current.queryRenderedFeatures(boundingBox, {
+      layers: ["arbres"],
+      validate: false,
+    });
+  }, []);
+
+  const currentMapStyle = useMemo(() => {
+    return {
+      version: 8,
+      sources: {
+        background: {
+          type: "raster",
+          tiles: [baseLayer],
+          tileSize: 256,
+        },
+      },
+      layers: [
+        {
+          id: "google-sat",
+          source: "background",
+          type: "raster",
+          minzoom: 0,
+          maxzoom: 22,
+        },
+      ],
+    };
+  }, [baseLayer]);
 
   const arbresLayer = {
     id: "arbres",
@@ -150,16 +200,6 @@ const TreeMap = (props) => {
     };
   }, [features, filter, pal]);
 
-  const PMTilesTrees = () => (
-    <Source
-      id="arbres"
-      type="vector"
-      url={`pmtiles://${import.meta.env.VITE_PMTILES_URL}`}
-    >
-      <Layer {...arbresLayer} />
-    </Source>
-  );
-
   return (
     <div id="App" className="App">
       <Map
@@ -172,21 +212,20 @@ const TreeMap = (props) => {
           zoom: import.meta.env.VITE_ZOOM,
         }}
         onMoveEnd={() => {
-          setFeatures(
-            mapRef.current.queryRenderedFeatures({
-              layers: ["arbres"],
-              validate: false,
-            }),
-          );
+          if (!mapRef.current) return;
+          const visibleTrees = getVisibleFeatures();
+          if (visibleTrees.length > 0 || mapRef.current.areTilesLoaded()) {
+            setFeatures(visibleTrees);
+          }       
+        }}
+        onIdle={() => {
+          if (mapRef.current) {
+            setFeatures(getVisibleFeatures());
+          }
         }}
         onLoad={() => {
           setMapLoaded(true);
-          setFeatures(
-            mapRef.current.queryRenderedFeatures({
-              layers: ["arbres"],
-              validate: false,
-            }),
-          );
+          setFeatures(getVisibleFeatures());
           mapRef.current.on("mouseenter", "arbres", () => {
             if (mapRef.current.getZoom() > 15) {
               mapRef.current.getCanvas().style.cursor = "pointer";
@@ -245,28 +284,17 @@ const TreeMap = (props) => {
             );
           }
         }}
-        mapStyle={{
-          version: 8,
-          sources: {
-            background: {
-              type: "raster",
-              tiles: [baseLayer],
-              tileSize: 256,
-            },
-          },
-          layers: [
-            {
-              id: "google-sat",
-              source: "background",
-              type: "raster",
-              minzoom: 0,
-              maxzoom: 22,
-            },
-          ],
-        }}
+        mapStyle={currentMapStyle}
         mapLib={maplibregl}
       >
-        <PMTilesTrees />
+        <Source
+          id="arbres"
+          type="vector"
+          url={`pmtiles://https://object-arbutus.cloud.computecanada.ca/arbres/mtl/pmtiles/arbres_mtl.pmtiles`}
+        >
+          <Layer {...arbresLayer} />
+        </Source>
+        
         {showPopup && <> {popup} </>}
       </Map>
     </div>
