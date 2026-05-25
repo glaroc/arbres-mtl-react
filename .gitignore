@@ -131,3 +131,4 @@ dist
 
 docker/tippecanoe
 docker/.env
+.venv/
