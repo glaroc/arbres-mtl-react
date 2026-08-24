@@ -144,21 +144,24 @@ const TreeMap = (props) => {
       const cnt = Object.values(sp).reduce((a, b) => a + b, 0);
       setSpeciesCount(k);
       setNumTrees(cnt);
-    }
-    else {
+    } else {
       setNumTrees(0);
       if (searchBarValue && searchBarValue.length > 0) {
         const zeroedSpecies = searchBarValue.map((v) => {
           let s = v.id.replaceAll("-", "");
           return {
             sigle: s,
-            [`essence_${lang}`]: _.find(species, { sigle: s })[`essence_${lang}`],
+            [`essence_${lang}`]: _.find(species, { sigle: s })[
+              `essence_${lang}`
+            ],
             count: 0,
           };
         });
         setSpeciesCount(zeroedSpecies);
-      } else { setSpeciesCount([]);}
-    }  
+      } else {
+        setSpeciesCount([]);
+      }
+    }
     return () => {
       ignore = true;
     };

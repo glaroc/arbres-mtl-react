@@ -130,4 +130,11 @@ dist
 .pnp.*
 
 docker/tippecanoe
+<<<<<<< HEAD
 docker/.env
+=======
+docker/.env
+.venv/
+
+.env.*
+>>>>>>> main
