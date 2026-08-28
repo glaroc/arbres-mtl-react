@@ -134,7 +134,7 @@ export default function App(props) {
             />
             <LayerSelector notifyLayerChange={notifyLayerChange} />
           </Grid>
-          <Grid
+          <Grid id = "ui-tray"
             xs={6}
             md={5}
             lg={3}
@@ -158,7 +158,7 @@ export default function App(props) {
         </Grid>
       )}
       {isMobile && (
-        <Box
+        <Box id="ui-tray-mobile"
           sx={{
             position: "relative",
             overflow: "visible",
