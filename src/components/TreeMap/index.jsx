@@ -57,18 +57,18 @@ const TreeMap = (props) => {
     const mobileDrawer = document.getElementById("ui-tray-mobile");
     if (desktopSidebar && window.innerWidth > 767) {
       const rect = desktopSidebar.getBoundingClientRect();
-      if (rect.left > 0) visibleWidth = rect.left; 
+      if (rect.left > 0) visibleWidth = rect.left;
     }
     if (mobileDrawer && window.innerWidth <= 767) {
-      const drawerPaper = mobileDrawer.querySelector('.MuiDrawer-paper');
+      const drawerPaper = mobileDrawer.querySelector(".MuiDrawer-paper");
       if (drawerPaper) {
         const rect = drawerPaper.getBoundingClientRect();
         if (rect.top > 0) visibleHeight = rect.top;
       }
     }
     const boundingBox = [
-      [0, 0], 
-      [visibleWidth, visibleHeight] 
+      [0, 0],
+      [visibleWidth, visibleHeight],
     ];
     return mapRef.current.queryRenderedFeatures(boundingBox, {
       layers: ["arbres"],
@@ -179,7 +179,7 @@ const TreeMap = (props) => {
       if (searchBarValue.length > 0) {
         let s = searchBarValue.map((v) => v.id);
         let ss = {};
-        s.map((m) => (ss[m.replaceAll("-", "")] = sp[-${m}-] || 0));
+        s.map((m) => (ss[m.replaceAll("-", "")] = sp[`-${m}-`] || 0));
         sp = ss;
       }
       let topsp = _.take(_.sortBy(_.toPairs(sp), 1).reverse(), 8);
@@ -194,21 +194,24 @@ const TreeMap = (props) => {
       const cnt = Object.values(sp).reduce((a, b) => a + b, 0);
       setSpeciesCount(k);
       setNumTrees(cnt);
-    }
-    else {
+    } else {
       setNumTrees(0);
       if (searchBarValue && searchBarValue.length > 0) {
         const zeroedSpecies = searchBarValue.map((v) => {
           let s = v.id.replaceAll("-", "");
           return {
             sigle: s,
-            [`essence_${lang}`]: _.find(species, { sigle: s })[`essence_${lang}`],
+            [`essence_${lang}`]: _.find(species, { sigle: s })[
+              `essence_${lang}`
+            ],
             count: 0,
           };
         });
         setSpeciesCount(zeroedSpecies);
-      } else { setSpeciesCount([]);}
-    }  
+      } else {
+        setSpeciesCount([]);
+      }
+    }
     return () => {
       ignore = true;
     };
@@ -230,7 +233,7 @@ const TreeMap = (props) => {
           const visibleTrees = getVisibleFeatures();
           if (visibleTrees.length > 0 || mapRef.current.areTilesLoaded()) {
             setFeatures(visibleTrees);
-          }       
+          }
         }}
         onIdle={() => {
           if (mapRef.current) {
@@ -308,7 +311,7 @@ const TreeMap = (props) => {
         >
           <Layer {...arbresLayer} />
         </Source>
-        
+
         {showPopup && <> {popup} </>}
       </Map>
     </div>
